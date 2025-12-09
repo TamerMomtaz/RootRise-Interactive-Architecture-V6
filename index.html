@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The RootRise System — Architecture v6.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bronze: #B8904A;
+            --color-bronze-light: #C4965F;
+            --color-bronze-dark: #9D7E3A;
+            --color-navy-dark: #0F1419;
+            --color-blue-gray: #1E2F3E;
+            --color-section-dark: #2B3F52;
+            --color-border-dark: #3A4A5A;
+            --color-teal-bright: #5DD4C3;
+            --color-teal-light: #7DE3D1;
+            --color-teal-deep: #2A5C5C;
+            --color-teal-deeper: #1E4A4A;
+            --color-text-primary: #FFFFFF;
+            --color-text-secondary: #B4B4B4;
+            --color-text-tertiary: #C4C4C4;
+            --pantheon-color: #B8904A;
+            --sector-color: #5DD4C3;
+            --eye-color: #F5A623;
+            --industrial-color: #5DD4C3;
+            --services-color: #A78BFA;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(180deg, var(--color-teal-deeper) 0%, var(--color-teal-deep) 50%, var(--color-teal-deeper) 100%);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        header {
+            text-align: center;
+            padding: 50px 20px 30px;
+            border-bottom: 1px solid rgba(184, 144, 74, 0.3);
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(184, 144, 74, 0.15);
+            border: 1px solid var(--color-bronze);
+            color: var(--color-bronze);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .badge.new {
+            background: rgba(245, 166, 35, 0.2);
+            border-color: var(--eye-color);
+            color: var(--eye-color);
+            margin-left: 8px;
+        }
+        
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 42px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+        
+        h1 span { color: var(--color-bronze); }
+        
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .version-notes {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .version-note {
+            background: rgba(0,0,0,0.2);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--color-text-secondary);
+        }
+        
+        .version-note.highlight {
+            background: rgba(245, 166, 35, 0.15);
+            color: var(--eye-color);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-tab:hover { background: rgba(255,255,255,0.05); }
+        .nav-tab.active.pantheon { background: rgba(184, 144, 74, 0.15); border-color: var(--pantheon-color); color: var(--pantheon-color); }
+        .nav-tab.active.sector { background: rgba(93, 212, 195, 0.15); border-color: var(--sector-color); color: var(--sector-color); }
+        .nav-tab.active.eye { background: rgba(245, 166, 35, 0.15); border-color: var(--eye-color); color: var(--eye-color); }
+        
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .nav-dot.pantheon { background: var(--pantheon-color); }
+        .nav-dot.sector { background: var(--sector-color); }
+        .nav-dot.eye { background: var(--eye-color); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .section { padding: 50px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        .section-header { margin-bottom: 30px; }
+        
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        
+        .section-label.pantheon { color: var(--pantheon-color); }
+        .section-label.sector { color: var(--sector-color); }
+        .section-label.eye { color: var(--eye-color); }
+        
+        .section-label::before { content: ''; width: 20px; height: 2px; border-radius: 1px; }
+        .section-label.pantheon::before { background: var(--pantheon-color); }
+        .section-label.sector::before { background: var(--sector-color); }
+        .section-label.eye::before { background: var(--eye-color); }
+        
+        .section-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+        .section-desc { color: var(--color-text-secondary); font-size: 14px; max-width: 700px; }
+        
+        /* Type Toggle */
+        .type-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 6px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .type-btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--color-text-secondary);
+        }
+        
+        .type-btn:hover { background: rgba(255,255,255,0.05); }
+        
+        .type-btn.active.industrial {
+            background: linear-gradient(135deg, var(--industrial-color) 0%, #4FC5B2 100%);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(93, 212, 195, 0.3);
+        }
+        
+        .type-btn.active.services {
+            background: linear-gradient(135deg, var(--services-color) 0%, #8B5CF6 100%);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
+        }
+        
+        .type-btn .count {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .type-btn.active .count {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Sector Groups */
+        .sector-group {
+            display: none;
+        }
+        
+        .sector-group.active {
+            display: block;
+        }
+        
+        .sector-group-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sector-group-label.industrial { color: var(--industrial-color); }
+        .sector-group-label.services { color: var(--services-color); }
+        
+        .creative-cluster-label {
+            margin-top: 24px;
+            font-size: 11px;
+            color: var(--services-color);
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .creative-cluster-label::before,
+        .creative-cluster-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(167, 139, 250, 0.3);
+        }
+        
+        .cards-grid { display: grid; gap: 12px; }
+        .cards-grid.agents { grid-template-columns: 1fr; }
+        .cards-grid.four-col { grid-template-columns: repeat(4, 1fr); }
+        .cards-grid.three-col { grid-template-columns: repeat(3, 1fr); }
+        
+        @media (max-width: 900px) {
+            .cards-grid.four-col, .cards-grid.three-col { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .cards-grid.four-col, .cards-grid.three-col { grid-template-columns: 1fr; }
+        }
+        
+        /* Agent Cards */
+        .agent-card {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--color-border-dark);
+            border-radius: 10px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .agent-card:hover { border-color: var(--pantheon-color); background: rgba(184, 144, 74, 0.08); transform: translateY(-2px); }
+        .agent-card.selected { border-color: var(--pantheon-color); background: rgba(184, 144, 74, 0.12); box-shadow: 0 0 20px rgba(184, 144, 74, 0.15); }
+        .agent-card.supervisor { grid-column: 1 / -1; background: rgba(184, 144, 74, 0.1); border-color: var(--pantheon-color); }
+        
+        .agent-card.new-agent {
+            border-color: var(--eye-color);
+            background: rgba(245, 166, 35, 0.08);
+        }
+        
+        .agent-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .agent-icon.supervisor { background: var(--pantheon-color); }
+        .agent-icon.core { background: var(--color-teal-deep); }
+        .agent-icon.addon { background: var(--color-blue-gray); }
+        .agent-icon.utility { background: var(--color-section-dark); }
+        .agent-icon.new { background: var(--eye-color); }
+        
+        .agent-info { flex: 1; min-width: 0; }
+        .agent-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+        .agent-role { font-size: 11px; color: var(--color-text-secondary); }
+        
+        .new-tag {
+            background: var(--eye-color);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .agent-badge { padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .agent-badge.supervisor { background: var(--pantheon-color); color: #000; }
+        .agent-badge.core { background: var(--color-teal-bright); color: #000; }
+        .agent-badge.addon { border: 1px solid var(--color-teal-bright); color: var(--color-teal-bright); }
+        .agent-badge.utility { border: 1px solid var(--color-text-secondary); color: var(--color-text-secondary); }
+        
+        /* Sector & Eye Cards */
+        .sector-card, .eye-card {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--color-border-dark);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sector-card:hover { border-color: var(--sector-color); background: rgba(93, 212, 195, 0.08); transform: translateY(-2px); }
+        .sector-card.selected { border-color: var(--sector-color); background: rgba(93, 212, 195, 0.12); box-shadow: 0 0 20px rgba(93, 212, 195, 0.15); }
+        .sector-card.custom { border-style: dashed; border-color: var(--sector-color); }
+        
+        .sector-card.services-card:hover { border-color: var(--services-color); background: rgba(167, 139, 250, 0.08); }
+        .sector-card.services-card.selected { border-color: var(--services-color); background: rgba(167, 139, 250, 0.12); box-shadow: 0 0 20px rgba(167, 139, 250, 0.15); }
+        .sector-card.services-card.custom { border-color: var(--services-color); }
+        
+        .sector-card.services-card .sector-tag {
+            background: rgba(167, 139, 250, 0.15);
+            color: var(--services-color);
+        }
+        
+        .eye-card:hover { border-color: var(--eye-color); background: rgba(245, 166, 35, 0.08); transform: translateY(-2px); }
+        .eye-card.selected { border-color: var(--eye-color); background: rgba(245, 166, 35, 0.12); box-shadow: 0 0 20px rgba(245, 166, 35, 0.15); }
+        .eye-card.custom { border-style: dashed; border-color: var(--eye-color); }
+        
+        .eye-card.new-lens {
+            border-color: var(--eye-color);
+            background: rgba(245, 166, 35, 0.08);
+        }
+        
+        .sector-header, .eye-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .sector-icon, .eye-icon { font-size: 20px; }
+        .sector-name, .eye-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        
+        .sector-tags, .eye-focus { display: flex; flex-wrap: wrap; gap: 4px; }
+        .sector-tag { background: rgba(93, 212, 195, 0.15); color: var(--sector-color); padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 500; }
+        .eye-desc { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; line-height: 1.5; }
+        .eye-focus-tag { background: rgba(245, 166, 35, 0.15); color: var(--eye-color); padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 500; }
+        
+        /* Detail Panels */
+        .detail-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .detail-panel.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .detail-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .detail-icon.pantheon { background: var(--pantheon-color); }
+        .detail-icon.sector { background: var(--sector-color); }
+        .detail-icon.services { background: var(--services-color); }
+        .detail-icon.eye { background: var(--eye-color); }
+        
+        .detail-title { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 600; }
+        .detail-subtitle { font-size: 13px; color: var(--color-text-secondary); }
+        
+        /* Tabs for Deep Dive */
+        .detail-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.2);
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .detail-tab {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            color: var(--color-text-secondary);
+        }
+        
+        .detail-tab:hover { background: rgba(255,255,255,0.05); color: var(--color-text-primary); }
+        .detail-tab.active { background: var(--sector-color); color: #000; }
+        .detail-tab.active.services-tab { background: var(--services-color); }
+        
+        .detail-tab-content {
+            padding: 24px;
+            display: none;
+        }
+        
+        .detail-tab-content.active { display: block; }
+        
+        /* Knowledge Grid */
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 700px) {
+            .knowledge-grid { grid-template-columns: 1fr; }
+        }
+        
+        .knowledge-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 3px solid var(--sector-color);
+        }
+        
+        .knowledge-card.services {
+            border-left-color: var(--services-color);
+        }
+        
+        .knowledge-card h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--sector-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .knowledge-card.services h4 {
+            color: var(--services-color);
+        }
+        
+        .knowledge-card ul {
+            list-style: none;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .knowledge-card ul li {
+            padding: 6px 0;
+            padding-left: 16px;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .knowledge-card ul li:last-child { border-bottom: none; }
+        .knowledge-card ul li::before { content: '→'; position: absolute; left: 0; color: var(--sector-color); }
+        .knowledge-card.services ul li::before { color: var(--services-color); }
+        
+        /* Benchmark Table */
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+        
+        .benchmark-table th, .benchmark-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .benchmark-table th {
+            background: rgba(0,0,0,0.2);
+            color: var(--sector-color);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .benchmark-table td { color: var(--color-text-secondary); }
+        
+        .benchmark-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--color-text-primary);
+            font-weight: 500;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        @media (max-width: 700px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        .kpi-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .kpi-name { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
+        .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--sector-color); font-weight: 600; }
+        .kpi-unit { font-size: 10px; color: var(--color-text-tertiary); margin-top: 4px; }
+        
+        /* Risk Tags */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .risk-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .risk-level {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .risk-level.high { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .risk-level.medium { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .risk-level.low { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        
+        .risk-text { font-size: 12px; color: var(--color-text-secondary); }
+        
+        /* MENA Grid */
+        .mena-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .mena-country {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        
+        .mena-country h5 {
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mena-country ul {
+            list-style: none;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .mena-country ul li {
+            padding: 4px 0;
+            padding-left: 14px;
+            position: relative;
+        }
+        
+        .mena-country ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--sector-color);
+        }
+        
+        /* Simple Detail Content */
+        .detail-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 24px;
+        }
+        
+        @media (max-width: 700px) {
+            .detail-content { grid-template-columns: 1fr; }
+        }
+        
+        .detail-section h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .detail-section.pantheon h4 { color: var(--pantheon-color); }
+        .detail-section.sector h4 { color: var(--sector-color); }
+        .detail-section.eye h4 { color: var(--eye-color); }
+        
+        .detail-section ul {
+            list-style: none;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .detail-section ul li {
+            padding: 6px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+        
+        .detail-section ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--color-bronze);
+        }
+        
+        .detail-section.eye ul li::before { color: var(--eye-color); }
+        
+        /* Priority Agents Visual */
+        .priority-agents {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .priority-agent {
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .priority-agent .bar {
+            width: 40px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .priority-agent .bar-fill { height: 100%; border-radius: 3px; background: var(--eye-color); }
+        .priority-agent.high .bar-fill { width: 100%; }
+        .priority-agent.medium .bar-fill { width: 70%; background: var(--color-bronze); }
+        .priority-agent.low .bar-fill { width: 40%; background: var(--color-text-secondary); }
+        
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+        }
+        
+        footer .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        footer .logo span { color: var(--color-bronze); }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            color: var(--color-bronze);
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="badge">Interactive Architecture v6.0</div>
+        <span class="badge new">Updated</span>
+        <h1>The Root<span>Rise</span> System</h1>
+        <p class="subtitle">Complete SME diagnostic architecture — Industrial & Services sectors, 11 specialist agents, 15 transformation lenses.</p>
+        
+        <div class="version-notes">
+            <span class="version-note highlight">✨ NEW: Services Sectors</span>
+            <span class="version-note highlight">✨ NEW: The Landor Agent</span>
+            <span class="version-note highlight">✨ NEW: The Crema Lens</span>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value">11</div>
+                <div class="stat-label">Agents</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">27</div>
+                <div class="stat-label">Sectors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">15</div>
+                <div class="stat-label">Lenses</div>
+            </div>
+        </div>
+    </header>
+    
+    <nav class="nav-tabs">
+        <div class="nav-tab active pantheon" onclick="scrollToSection('pantheon')">
+            <span class="nav-dot pantheon"></span>
+            The Pantheon
+        </div>
+        <div class="nav-tab sector" onclick="scrollToSection('sector')">
+            <span class="nav-dot sector"></span>
+            My Sector
+        </div>
+        <div class="nav-tab eye" onclick="scrollToSection('eye')">
+            <span class="nav-dot eye"></span>
+            The &Eye
+        </div>
+    </nav>
+    
+    <div class="container">
+        
+        <!-- SECTION 1: THE PANTHEON -->
+        <section class="section" id="pantheon">
+            <div class="section-header">
+                <div class="section-label pantheon">11 Specialist Agents</div>
+                <h2 class="section-title">The Pantheon</h2>
+                <p class="section-desc">AI specialists named after business pioneers. Each brings deep domain expertise to analyze your SME.</p>
+            </div>
+            
+            <!-- Supervisor -->
+            <div class="cards-grid agents" style="margin-bottom: 12px;">
+                <div class="agent-card supervisor" data-agent="drucker" onclick="selectAgent(this)">
+                    <div class="agent-icon supervisor">🎯</div>
+                    <div class="agent-info">
+                        <div class="agent-name">The Drucker</div>
+                        <div class="agent-role">Peter Drucker (1909-2005) — Father of Modern Management</div>
+                    </div>
+                    <div class="agent-badge supervisor">Supervisor</div>
+                </div>
+            </div>
+            
+            <!-- Core & Add-on Agents -->
+            <div class="cards-grid four-col">
+                <div class="agent-card" data-agent="marvin" onclick="selectAgent(this)">
+                    <div class="agent-icon core">🔍</div>
+                    <div class="agent-info"><div class="agent-name">The Marvin</div><div class="agent-role">Diagnostic & Consulting</div></div>
+                    <div class="agent-badge core">Core</div>
+                </div>
+                <div class="agent-card" data-agent="graham" onclick="selectAgent(this)">
+                    <div class="agent-icon core">💰</div>
+                    <div class="agent-info"><div class="agent-name">The Graham</div><div class="agent-role">Finance & Investment</div></div>
+                    <div class="agent-badge core">Core</div>
+                </div>
+                <div class="agent-card" data-agent="ricardo" onclick="selectAgent(this)">
+                    <div class="agent-icon addon">🌍</div>
+                    <div class="agent-info"><div class="agent-name">The Ricardo</div><div class="agent-role">Export & Trade</div></div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                <div class="agent-card" data-agent="lovelace" onclick="selectAgent(this)">
+                    <div class="agent-icon addon">💻</div>
+                    <div class="agent-info"><div class="agent-name">The Lovelace</div><div class="agent-role">Digital & Technology</div></div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                <div class="agent-card" data-agent="mayo" onclick="selectAgent(this)">
+                    <div class="agent-icon addon">👥</div>
+                    <div class="agent-info"><div class="agent-name">The Mayo</div><div class="agent-role">HR & Organization</div></div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                <div class="agent-card" data-agent="ohno" onclick="selectAgent(this)">
+                    <div class="agent-icon addon">📦</div>
+                    <div class="agent-info"><div class="agent-name">The Ohno</div><div class="agent-role">Supply Chain & Lean</div></div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                <div class="agent-card" data-agent="porter" onclick="selectAgent(this)">
+                    <div class="agent-icon addon">📊</div>
+                    <div class="agent-info"><div class="agent-name">The Porter</div><div class="agent-role">Market & Competition</div></div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                
+                <!-- NEW AGENT: LANDOR -->
+                <div class="agent-card new-agent" data-agent="landor" onclick="selectAgent(this)">
+                    <div class="agent-icon new">🏷️</div>
+                    <div class="agent-info">
+                        <div class="agent-name">The Landor <span class="new-tag">NEW</span></div>
+                        <div class="agent-role">Packaging & Labeling</div>
+                    </div>
+                    <div class="agent-badge addon">Add-on</div>
+                </div>
+                
+                <div class="agent-card" data-agent="tufte" onclick="selectAgent(this)">
+                    <div class="agent-icon utility">📋</div>
+                    <div class="agent-info"><div class="agent-name">The Tufte</div><div class="agent-role">Reports & Visualization</div></div>
+                    <div class="agent-badge utility">Utility</div>
+                </div>
+                <div class="agent-card" data-agent="deming" onclick="selectAgent(this)">
+                    <div class="agent-icon utility">✓</div>
+                    <div class="agent-info"><div class="agent-name">The Deming</div><div class="agent-role">Quality & Validation</div></div>
+                    <div class="agent-badge utility">Utility</div>
+                </div>
+            </div>
+            
+            <div class="detail-panel" id="agent-detail">
+                <div class="detail-header">
+                    <div class="detail-icon pantheon" id="agent-detail-icon">🎯</div>
+                    <div>
+                        <div class="detail-title" id="agent-detail-name">The Drucker</div>
+                        <div class="detail-subtitle" id="agent-detail-bio">Peter Drucker (1909-2005)</div>
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-section pantheon">
+                        <h4>Core Function</h4>
+                        <ul id="agent-detail-function"></ul>
+                    </div>
+                    <div class="detail-section pantheon">
+                        <h4>Key Capabilities</h4>
+                        <ul id="agent-detail-capabilities"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECTION 2: MY SECTOR -->
+        <section class="section" id="sector">
+            <div class="section-header">
+                <div class="section-label sector">27 Industry Contexts</div>
+                <h2 class="section-title">My Sector</h2>
+                <p class="section-desc">Choose your SME type, then select your industry. Deep intelligence for each: standards, benchmarks, KPIs, risks, and MENA context.</p>
+            </div>
+            
+            <!-- Type Toggle -->
+            <div class="type-toggle">
+                <div class="type-btn active industrial" onclick="toggleSectorType('industrial')">
+                    <span>🏭</span>
+                    Industrial
+                    <span class="count">12</span>
+                </div>
+                <div class="type-btn services" onclick="toggleSectorType('services')">
+                    <span>🏢</span>
+                    Services
+                    <span class="count">15</span>
+                </div>
+            </div>
+            
+            <!-- Industrial Sectors -->
+            <div class="sector-group active" id="industrial-sectors">
+                <div class="sector-group-label industrial">
+                    <span>🏭</span> Industrial / Manufacturing Sectors
+                </div>
+                <div class="cards-grid four-col">
+                    <div class="sector-card" data-sector="food" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🥫</span><span class="sector-name">Food Processing</span></div>
+                        <div class="sector-tags"><span class="sector-tag">HACCP</span><span class="sector-tag">ISO 22000</span><span class="sector-tag">Halal</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="pharma" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">💊</span><span class="sector-name">Pharmaceuticals</span></div>
+                        <div class="sector-tags"><span class="sector-tag">GMP</span><span class="sector-tag">WHO PQ</span><span class="sector-tag">GDP</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="textile" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🧵</span><span class="sector-name">Textiles</span></div>
+                        <div class="sector-tags"><span class="sector-tag">OEKO-TEX</span><span class="sector-tag">GOTS</span><span class="sector-tag">BSCI</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="automotive" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🚗</span><span class="sector-name">Automotive Parts</span></div>
+                        <div class="sector-tags"><span class="sector-tag">IATF 16949</span><span class="sector-tag">VDA 6.3</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="cosmetics" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">💄</span><span class="sector-name">Cosmetics</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 22716</span><span class="sector-tag">Halal</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="packaging" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">📦</span><span class="sector-name">Packaging</span></div>
+                        <div class="sector-tags"><span class="sector-tag">BRC</span><span class="sector-tag">FSC</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="plastics" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🧪</span><span class="sector-name">Plastics</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 14001</span><span class="sector-tag">RoHS</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="electronics" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">⚡</span><span class="sector-name">Electronics</span></div>
+                        <div class="sector-tags"><span class="sector-tag">IPC</span><span class="sector-tag">RoHS</span><span class="sector-tag">CE</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="chemicals" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">⚗️</span><span class="sector-name">Chemicals</span></div>
+                        <div class="sector-tags"><span class="sector-tag">REACH</span><span class="sector-tag">GHS</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="furniture" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🪑</span><span class="sector-name">Furniture</span></div>
+                        <div class="sector-tags"><span class="sector-tag">FSC</span><span class="sector-tag">CARB</span></div>
+                    </div>
+                    <div class="sector-card" data-sector="filling" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🏭</span><span class="sector-name">Filling & Bottling</span></div>
+                        <div class="sector-tags"><span class="sector-tag">FSSC 22000</span><span class="sector-tag">IFS</span></div>
+                    </div>
+                    <div class="sector-card custom" data-sector="custom-industrial" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">✨</span><span class="sector-name">Your Industry</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Custom</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Services Sectors -->
+            <div class="sector-group" id="services-sectors">
+                <div class="sector-group-label services">
+                    <span>🏢</span> Services Sectors
+                </div>
+                <div class="cards-grid four-col">
+                    <div class="sector-card services-card" data-sector="hospitality" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🏨</span><span class="sector-name">Hospitality & Tourism</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 9001</span><span class="sector-tag">HACCP</span><span class="sector-tag">Green Key</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="healthcare" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🏥</span><span class="sector-name">Healthcare</span></div>
+                        <div class="sector-tags"><span class="sector-tag">JCI</span><span class="sector-tag">ISO 15189</span><span class="sector-tag">HIPAA</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="professional" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">💼</span><span class="sector-name">Professional Services</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 9001</span><span class="sector-tag">RICS</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="education" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🎓</span><span class="sector-name">Education & Training</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Accreditation</span><span class="sector-tag">ISO 21001</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="logistics" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🚚</span><span class="sector-name">Logistics & Distribution</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 28000</span><span class="sector-tag">GDP</span><span class="sector-tag">AEO</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="it" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">💻</span><span class="sector-name">IT & Digital Services</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 27001</span><span class="sector-tag">CMMI</span><span class="sector-tag">SOC 2</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="financial" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🏦</span><span class="sector-name">Financial Services</span></div>
+                        <div class="sector-tags"><span class="sector-tag">CBE</span><span class="sector-tag">AML</span><span class="sector-tag">PCI DSS</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="retail" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🛒</span><span class="sector-name">Retail & Trade</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 9001</span><span class="sector-tag">E-commerce</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="construction" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🏗️</span><span class="sector-name">Construction & Contracting</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 45001</span><span class="sector-tag">LEED</span><span class="sector-tag">PMP</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="maintenance" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🔧</span><span class="sector-name">Maintenance & Technical</span></div>
+                        <div class="sector-tags"><span class="sector-tag">ISO 9001</span><span class="sector-tag">SLA</span></div>
+                    </div>
+                </div>
+                
+                <!-- Creative Cluster -->
+                <div class="creative-cluster-label">✨ Creative Economy Cluster ✨</div>
+                
+                <div class="cards-grid four-col" style="margin-top: 16px;">
+                    <div class="sector-card services-card" data-sector="arts" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🎨</span><span class="sector-name">Arts & Handicrafts</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Heritage</span><span class="sector-tag">Artisanal</span><span class="sector-tag">Export</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="music" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🎵</span><span class="sector-name">Music & Entertainment</span></div>
+                        <div class="sector-tags"><span class="sector-tag">IP</span><span class="sector-tag">Licensing</span><span class="sector-tag">Events</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="design" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">✏️</span><span class="sector-name">Design & Creative</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Branding</span><span class="sector-tag">UX/UI</span><span class="sector-tag">Fashion</span></div>
+                    </div>
+                    <div class="sector-card services-card" data-sector="media" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">🎬</span><span class="sector-name">Media & Content</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Production</span><span class="sector-tag">Streaming</span><span class="sector-tag">Influencer</span></div>
+                    </div>
+                    <div class="sector-card services-card custom" data-sector="custom-services" data-type="services" onclick="selectSector(this)">
+                        <div class="sector-header"><span class="sector-icon">✨</span><span class="sector-name">Your Service</span></div>
+                        <div class="sector-tags"><span class="sector-tag">Custom</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sector Detail Panel -->
+            <div class="detail-panel" id="sector-detail">
+                <div class="detail-header">
+                    <div class="detail-icon sector" id="sector-detail-icon">🥫</div>
+                    <div>
+                        <div class="detail-title" id="sector-detail-name">Food Processing</div>
+                        <div class="detail-subtitle" id="sector-detail-sub">Manufacturing, Dairy, Beverages, Confectionery</div>
+                    </div>
+                </div>
+                
+                <div class="detail-tabs" id="sector-tabs">
+                    <div class="detail-tab active" data-tab="overview" onclick="selectSectorTab(this)">Overview</div>
+                    <div class="detail-tab" data-tab="benchmarks" onclick="selectSectorTab(this)">Financials</div>
+                    <div class="detail-tab" data-tab="kpis" onclick="selectSectorTab(this)">KPIs</div>
+                    <div class="detail-tab" data-tab="regulatory" onclick="selectSectorTab(this)">Regulatory</div>
+                    <div class="detail-tab" data-tab="workforce" onclick="selectSectorTab(this)">Workforce</div>
+                    <div class="detail-tab" data-tab="supply" onclick="selectSectorTab(this)">Supply Chain</div>
+                    <div class="detail-tab" data-tab="tech" onclick="selectSectorTab(this)">Technology</div>
+                    <div class="detail-tab" data-tab="risks" onclick="selectSectorTab(this)">Risks</div>
+                    <div class="detail-tab" data-tab="growth" onclick="selectSectorTab(this)">Growth</div>
+                    <div class="detail-tab" data-tab="mena" onclick="selectSectorTab(this)">MENA</div>
+                </div>
+                
+                <div class="detail-tab-content active" id="tab-overview"><div class="knowledge-grid" id="overview-content"></div></div>
+                <div class="detail-tab-content" id="tab-benchmarks"><h4 style="color: var(--sector-color); margin-bottom: 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Financial Benchmarks</h4><table class="benchmark-table" id="benchmarks-table"></table></div>
+                <div class="detail-tab-content" id="tab-kpis"><h4 style="color: var(--sector-color); margin-bottom: 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Operational KPIs</h4><div class="kpi-grid" id="kpis-grid"></div></div>
+                <div class="detail-tab-content" id="tab-regulatory"><div class="knowledge-grid" id="regulatory-content"></div></div>
+                <div class="detail-tab-content" id="tab-workforce"><div class="knowledge-grid" id="workforce-content"></div></div>
+                <div class="detail-tab-content" id="tab-supply"><div class="knowledge-grid" id="supply-content"></div></div>
+                <div class="detail-tab-content" id="tab-tech"><div class="knowledge-grid" id="tech-content"></div></div>
+                <div class="detail-tab-content" id="tab-risks"><h4 style="color: var(--sector-color); margin-bottom: 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Risk Profile</h4><div class="risk-grid" id="risks-grid"></div></div>
+                <div class="detail-tab-content" id="tab-growth"><div class="knowledge-grid" id="growth-content"></div></div>
+                <div class="detail-tab-content" id="tab-mena"><h4 style="color: var(--sector-color); margin-bottom: 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">MENA Regional Context</h4><div class="mena-grid" id="mena-grid"></div></div>
+            </div>
+        </section>
+        
+        <!-- SECTION 3: THE &EYE -->
+        <section class="section" id="eye">
+            <div class="section-header">
+                <div class="section-label eye">15 Transformation Objectives</div>
+                <h2 class="section-title">The &Eye — Your Lens</h2>
+                <p class="section-desc">Your burning desire. Select your objective and we'll prioritize everything around YOUR goal.</p>
+            </div>
+            
+            <div class="cards-grid three-col">
+                <div class="eye-card" data-eye="export" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🌍</span><span class="eye-name">Export Readiness</span></div>
+                    <div class="eye-desc">"I want to sell internationally"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Certifications</span><span class="eye-focus-tag">Logistics</span><span class="eye-focus-tag">Compliance</span></div>
+                </div>
+                <div class="eye-card" data-eye="investment" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">💰</span><span class="eye-name">Investment Attraction</span></div>
+                    <div class="eye-desc">"I want to raise capital"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Financials</span><span class="eye-focus-tag">Governance</span><span class="eye-focus-tag">Valuation</span></div>
+                </div>
+                <div class="eye-card" data-eye="succession" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">👤</span><span class="eye-name">Owner Succession</span></div>
+                    <div class="eye-desc">"I want to retire / step back"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">HR</span><span class="eye-focus-tag">Processes</span><span class="eye-focus-tag">Independence</span></div>
+                </div>
+                <div class="eye-card" data-eye="inheritance" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🏛️</span><span class="eye-name">Inheritance Prep</span></div>
+                    <div class="eye-desc">"I want to pass to my children"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Legal</span><span class="eye-focus-tag">Family Gov</span><span class="eye-focus-tag">Succession</span></div>
+                </div>
+                <div class="eye-card" data-eye="sale" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">💼</span><span class="eye-name">Sale / Exit</span></div>
+                    <div class="eye-desc">"I want to sell the company"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Valuation</span><span class="eye-focus-tag">Due Diligence</span><span class="eye-focus-tag">Clean Books</span></div>
+                </div>
+                <div class="eye-card" data-eye="partnership" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🤝</span><span class="eye-name">Partnership / JV</span></div>
+                    <div class="eye-desc">"I want to find a partner"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Governance</span><span class="eye-focus-tag">Complementarity</span><span class="eye-focus-tag">Readiness</span></div>
+                </div>
+                <div class="eye-card" data-eye="profit" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">📈</span><span class="eye-name">Profitability</span></div>
+                    <div class="eye-desc">"I want better margins"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Costs</span><span class="eye-focus-tag">Efficiency</span><span class="eye-focus-tag">Pricing</span></div>
+                </div>
+                <div class="eye-card" data-eye="operational" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🏭</span><span class="eye-name">Operational Excellence</span></div>
+                    <div class="eye-desc">"I want to run better"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Processes</span><span class="eye-focus-tag">Quality</span><span class="eye-focus-tag">Lean</span></div>
+                </div>
+                <div class="eye-card" data-eye="digital" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">💻</span><span class="eye-name">Digital Transformation</span></div>
+                    <div class="eye-desc">"I want to modernize"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Tech Stack</span><span class="eye-focus-tag">Automation</span><span class="eye-focus-tag">Digital</span></div>
+                </div>
+                <div class="eye-card" data-eye="sustainability" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🌱</span><span class="eye-name">Sustainability / ESG</span></div>
+                    <div class="eye-desc">"I want to be green"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Environmental</span><span class="eye-focus-tag">Social</span><span class="eye-focus-tag">Governance</span></div>
+                </div>
+                <div class="eye-card" data-eye="employment" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">👥</span><span class="eye-name">Employment Growth</span></div>
+                    <div class="eye-desc">"I want to create jobs"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">HR Capacity</span><span class="eye-focus-tag">Scaling</span><span class="eye-focus-tag">Workforce</span></div>
+                </div>
+                <div class="eye-card" data-eye="supplychain" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🔗</span><span class="eye-name">Supply Chain Integration</span></div>
+                    <div class="eye-desc">"I want to join a value chain"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Supplier Ready</span><span class="eye-focus-tag">Quality</span><span class="eye-focus-tag">Logistics</span></div>
+                </div>
+                <div class="eye-card" data-eye="local" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">🏘️</span><span class="eye-name">Local Development</span></div>
+                    <div class="eye-desc">"I want community impact"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">Local Sourcing</span><span class="eye-focus-tag">Jobs</span><span class="eye-focus-tag">Community</span></div>
+                </div>
+                
+                <!-- NEW LENS: THE CREMA -->
+                <div class="eye-card new-lens" data-eye="crema" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">☕</span><span class="eye-name">The Crema <span class="new-tag">NEW</span></span></div>
+                    <div class="eye-desc">"I want quick wins now"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">30-60-90 Days</span><span class="eye-focus-tag">Low Effort</span><span class="eye-focus-tag">High Impact</span></div>
+                </div>
+                
+                <div class="eye-card custom" data-eye="custom" onclick="selectEye(this)">
+                    <div class="eye-header"><span class="eye-icon">✨</span><span class="eye-name">Custom Objective</span></div>
+                    <div class="eye-desc">"I have a specific goal"</div>
+                    <div class="eye-focus"><span class="eye-focus-tag">User-Defined</span><span class="eye-focus-tag">Flexible</span></div>
+                </div>
+            </div>
+            
+            <div class="detail-panel" id="eye-detail">
+                <div class="detail-header">
+                    <div class="detail-icon eye" id="eye-detail-icon">🌍</div>
+                    <div>
+                        <div class="detail-title" id="eye-detail-name">Export Readiness</div>
+                        <div class="detail-subtitle" id="eye-detail-desire">"I want to sell internationally"</div>
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-section eye">
+                        <h4>Focus Areas</h4>
+                        <ul id="eye-detail-focus"></ul>
+                    </div>
+                    <div class="detail-section eye">
+                        <h4>Priority Agents</h4>
+                        <div class="priority-agents" id="eye-detail-agents"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </div>
+    
+    <footer>
+        <div class="logo">Root<span>Rise</span></div>
+        <p>Architecture v6.0 — Industrial & Services • 11 Agents • 15 Lenses • December 2025 • DEVONEERS</p>
+    </footer>
+
+<script>
+// ============ AGENTS DATA ============
+const agentsData = {
+    drucker: {
+        icon: "🎯", name: "The Drucker", bio: "Peter Drucker (1909-2005) — Father of Modern Management",
+        function: ["Orchestrates all other agents", "Resolves conflicts between outputs", "Synthesizes final diagnostic report", "Balances competing priorities"],
+        capabilities: ["Cross-domain analysis", "Priority balancing", "Executive summary generation", "Conflict resolution"]
+    },
+    marvin: {
+        icon: "🔍", name: "The Marvin", bio: "Marvin Bower (1903-2003) — Father of Management Consulting",
+        function: ["5-pillar business health assessment", "Management & governance evaluation", "Operational efficiency scoring", "Growth readiness analysis"],
+        capabilities: ["Holistic diagnostic framework", "Benchmark comparison", "Gap identification", "Maturity scoring"]
+    },
+    graham: {
+        icon: "💰", name: "The Graham", bio: "Benjamin Graham (1894-1976) — Father of Value Investing",
+        function: ["Financial health analysis", "Funding readiness assessment", "Capital structure optimization", "Cash flow evaluation"],
+        capabilities: ["Ratio analysis", "Valuation frameworks", "Investment readiness scoring", "Financial projection review"]
+    },
+    ricardo: {
+        icon: "🌍", name: "The Ricardo", bio: "David Ricardo (1772-1823) — Comparative Advantage Theory",
+        function: ["Export readiness assessment", "International market mapping", "Trade compliance evaluation", "Certification gap analysis"],
+        capabilities: ["Market entry analysis", "Tariff and regulation mapping", "Export documentation review", "Partner identification"]
+    },
+    lovelace: {
+        icon: "💻", name: "The Lovelace", bio: "Ada Lovelace (1815-1852) — First Computer Programmer",
+        function: ["Digital maturity assessment", "Technology stack evaluation", "Automation opportunity mapping", "Digital presence analysis"],
+        capabilities: ["Tech stack scoring", "Automation ROI analysis", "Digital transformation roadmaps", "Cybersecurity assessment"]
+    },
+    mayo: {
+        icon: "👥", name: "The Mayo", bio: "Elton Mayo (1880-1949) — Human Relations Movement",
+        function: ["Workforce optimization", "Organizational structure review", "Culture assessment", "Skills gap analysis"],
+        capabilities: ["Org chart optimization", "Key person dependency analysis", "Succession planning", "Training needs assessment"]
+    },
+    ohno: {
+        icon: "📦", name: "The Ohno", bio: "Taiichi Ohno (1912-1990) — Toyota Production System",
+        function: ["Supply chain optimization", "Lean operations assessment", "Inventory management review", "Logistics efficiency analysis"],
+        capabilities: ["Waste identification (Muda)", "Process flow mapping", "Supplier risk assessment", "Just-in-time readiness"]
+    },
+    porter: {
+        icon: "📊", name: "The Porter", bio: "Michael Porter (1947-) — Five Forces Framework",
+        function: ["Competitive landscape analysis", "Market positioning assessment", "Strategic options mapping", "Industry dynamics evaluation"],
+        capabilities: ["Five Forces analysis", "Competitor benchmarking", "Value chain analysis", "Differentiation strategies"]
+    },
+    landor: {
+        icon: "🏷️", name: "The Landor", bio: "Walter Landor (1913-1995) — Father of Modern Branding & Package Design",
+        function: ["Packaging design & compliance assessment", "Label regulatory requirements analysis", "Export market labeling (multilingual)", "Brand consistency across product lines"],
+        capabilities: ["Packaging standards compliance", "Labeling regulation mapping", "Sustainability packaging assessment", "Barcode/QR/serialization readiness"]
+    },
+    tufte: {
+        icon: "📋", name: "The Tufte", bio: "Edward Tufte (1942-) — Data Visualization Pioneer",
+        function: ["Report generation", "Data visualization", "Multi-format output", "Executive presentation creation"],
+        capabilities: ["Dynamic report templates", "Chart generation", "Bilingual output (EN/AR)", "Format adaptation"]
+    },
+    deming: {
+        icon: "✓", name: "The Deming", bio: "W. Edwards Deming (1900-1993) — Quality Management Pioneer",
+        function: ["Quality assurance validation", "Output accuracy verification", "HITL trigger assessment", "Consistency checking"],
+        capabilities: ["Statistical quality control", "Confidence scoring", "Anomaly detection", "Human review routing"]
+    }
+};
+
+// ============ SECTORS DATA ============
+const sectorsData = {
+    food: {
+        icon: "🥫", name: "Food Processing", sub: "Manufacturing, Dairy, Beverages, Confectionery", type: "industrial",
+        overview: { identity: ["ISIC Code: 10 - Manufacture of Food Products", "Value Chain: Processor / Manufacturer", "Lifecycle: Mature with growth segments", "Business Models: B2B, Private label, Own brand"], market: ["Global market: $4.2T (2024)", "MENA market: $180B", "Growth rate: 4.5% CAGR", "Key drivers: Population, urbanization"] },
+        benchmarks: [{ metric: "Gross Margin", range: "25-35%", top: "40%+" }, { metric: "EBITDA Margin", range: "8-15%", top: "18%+" }, { metric: "Net Margin", range: "3-8%", top: "10%+" }, { metric: "Inventory Days", range: "30-60", top: "<25" }, { metric: "Asset Turnover", range: "1.0-1.5x", top: "2.0x+" }],
+        kpis: [{ name: "OEE", value: "65-75%", unit: "Equipment Effectiveness" }, { name: "Yield Rate", value: "92-96%", unit: "Good / Total" }, { name: "Spoilage", value: "2-5%", unit: "Waste %" }, { name: "Lead Time", value: "3-7", unit: "Days" }],
+        regulatory: { licenses: ["Food manufacturing license", "Health department permit", "Environmental permit"], certifications: ["HACCP", "ISO 22000", "FSSC 22000", "Halal/Kosher"], compliance: ["Food safety regulations", "Labeling requirements", "Traceability"], export: ["Certificate of origin", "Health certificate", "Halal certificate for GCC"] },
+        workforce: { roles: ["Production workers", "QC technicians", "Food technologists"], wages: ["Production: $300-600/mo", "QC Manager: $1,500-3,000/mo"], training: ["HACCP training", "GMP practices"], productivity: ["Revenue/employee: $50K-100K"] },
+        supply: { inputs: ["Raw materials (40-60% COGS)", "Packaging (10-20%)"], sourcing: ["Local: 60-80%", "Imported: 20-40%"], logistics: ["Cold chain", "Shelf life management"], risks: ["Commodity price volatility", "Seasonal supply gaps"] },
+        tech: { adoption: ["ERP: 30-40%", "Traceability: 20-30%"], systems: ["MES", "QMS", "Inventory"], opportunities: ["IoT monitoring", "Automated QC"], maturity: ["Basic: 40%", "Intermediate: 35%", "Advanced: 25%"] },
+        risks: [{ type: "Market", level: "medium", desc: "Commodity prices, seasonality" }, { type: "Operational", level: "high", desc: "Contamination, equipment failure" }, { type: "Currency", level: "high", desc: "Import-dependent ingredients" }],
+        growth: { strategies: ["Product line extension", "Export market entry", "Private label"], opportunities: ["Health & wellness", "Halal exports", "E-commerce"], exports: ["GCC priority", "Africa growing", "EU premium"], programs: ["Export development", "Food safety grants"] },
+        mena: { egypt: ["NFSA registration", "QIZ access to US"], saudi: ["SFDA mandatory", "Saudization"], uae: ["Re-export hub", "Premium market"], jordan: ["QIZ benefits", "EU Agreement"] }
+    },
+    hospitality: {
+        icon: "🏨", name: "Hospitality & Tourism", sub: "Hotels, Restaurants, Tourism, Events", type: "services",
+        overview: { identity: ["ISIC Code: 55-56 - Accommodation & Food Service", "Value Chain: Service Provider", "Lifecycle: Recovery & Growth post-pandemic", "Business Models: Owner-operated, Franchise, Management contract"], market: ["MENA tourism: $180B+ market", "Egypt: 15M+ visitors/year target", "Saudi: Vision 2030 tourism push", "Growth: 8-12% CAGR projected"] },
+        benchmarks: [{ metric: "RevPAR", range: "$50-150", top: "$200+" }, { metric: "Occupancy", range: "55-70%", top: "80%+" }, { metric: "ADR", range: "$80-200", top: "$300+" }, { metric: "GOP Margin", range: "25-35%", top: "45%+" }, { metric: "Labor Cost %", range: "25-35%", top: "<25%" }],
+        kpis: [{ name: "Occupancy", value: "65-75%", unit: "Room nights sold" }, { name: "RevPAR", value: "$80-120", unit: "Revenue per room" }, { name: "Guest Score", value: "4.2-4.5", unit: "Out of 5" }, { name: "F&B Rev %", value: "25-35%", unit: "Of total" }],
+        regulatory: { licenses: ["Hotel operating license", "Food service license", "Tourism license", "Liquor license (where applicable)"], certifications: ["ISO 9001", "HACCP (F&B)", "Green Key", "LEED", "Star rating"], compliance: ["Fire safety", "Health inspections", "Labor regulations", "Guest data protection"], export: ["N/A - local service", "Inbound tourism promotion", "Travel agent partnerships"] },
+        workforce: { roles: ["Front desk", "Housekeeping", "F&B service", "Kitchen staff", "Management"], wages: ["Entry level: $200-400/mo", "Supervisor: $600-1,200/mo", "GM: $3,000-8,000/mo"], training: ["Service excellence", "Language skills", "HACCP for F&B"], productivity: ["Revenue/employee: $30K-60K", "Rooms/housekeeper: 12-16/day"] },
+        supply: { inputs: ["F&B supplies (30-40%)", "Amenities", "Linens", "Utilities"], sourcing: ["Local F&B preferred", "Imported amenities"], logistics: ["Daily deliveries", "Inventory management"], risks: ["Seasonal demand", "Perishable inventory", "Supplier reliability"] },
+        tech: { adoption: ["PMS: 70-80%", "Online booking: 60-70%", "Revenue management: 30-40%"], systems: ["PMS (Opera, etc.)", "Channel Manager", "POS systems"], opportunities: ["Mobile check-in", "Guest apps", "AI pricing"], maturity: ["Basic: 30%", "Intermediate: 45%", "Advanced: 25%"] },
+        risks: [{ type: "Demand", level: "high", desc: "Seasonality, economic sensitivity" }, { type: "Labor", level: "high", desc: "High turnover, skill shortages" }, { type: "Reputation", level: "high", desc: "Online reviews, social media" }, { type: "Security", level: "medium", desc: "Guest safety, regional stability" }],
+        growth: { strategies: ["Digital marketing", "Experience packages", "Corporate contracts", "Events & MICE"], opportunities: ["Medical tourism", "Eco-tourism", "Heritage tourism", "Halal tourism"], exports: ["Inbound tourism promotion", "Regional hub positioning"], programs: ["Tourism development funds", "Training subsidies", "Marketing support"] },
+        mena: { egypt: ["Red Sea development", "Cultural tourism", "Nile cruises", "MICE growth"], saudi: ["Vision 2030 mega-projects", "Religious tourism", "Entertainment push", "NEOM"], uae: ["Dubai hub", "Expo legacy", "Luxury segment", "Events calendar"], jordan: ["Petra & heritage", "Dead Sea wellness", "Adventure tourism", "Medical tourism"] }
+    },
+    healthcare: {
+        icon: "🏥", name: "Healthcare Services", sub: "Clinics, Labs, Medical Services, Wellness", type: "services",
+        overview: { identity: ["ISIC Code: 86 - Human Health Activities", "Value Chain: Service Provider", "Lifecycle: High growth", "Business Models: Private practice, Chains, Hospital groups"], market: ["MENA healthcare: $100B+ market", "Growth: 7-10% CAGR", "Private sector expanding", "Medical tourism growing"] },
+        benchmarks: [{ metric: "Revenue/Physician", range: "$200K-400K", top: "$500K+" }, { metric: "EBITDA Margin", range: "15-25%", top: "30%+" }, { metric: "Patient Volume Growth", range: "5-10%", top: "15%+" }],
+        kpis: [{ name: "Patient Satisfaction", value: "85-90%", unit: "Satisfaction score" }, { name: "Wait Time", value: "<30", unit: "Minutes" }, { name: "Readmission Rate", value: "<5%", unit: "30-day" }],
+        regulatory: { licenses: ["Medical facility license", "Practitioner licenses", "Lab accreditation"], certifications: ["JCI Accreditation", "ISO 15189 (Labs)", "CAP (Labs)"], compliance: ["Medical records", "Patient privacy", "Clinical protocols"], export: ["Medical tourism packages", "Telemedicine"] },
+        workforce: { roles: ["Physicians", "Nurses", "Lab technicians", "Admin staff"], wages: ["Nurse: $800-2,000/mo", "GP: $3,000-8,000/mo", "Specialist: $5,000-15,000/mo"], training: ["CME requirements", "Clinical protocols", "Patient safety"], productivity: ["Patients/physician/day: 15-30"] },
+        supply: { inputs: ["Medical supplies", "Pharmaceuticals", "Equipment"], sourcing: ["Mostly imported equipment", "Local consumables"], logistics: ["Cold chain for some", "Expiry management"], risks: ["Supply disruptions", "Price increases"] },
+        tech: { adoption: ["EMR/EHR: 40-60%", "Telemedicine: 20-30%"], systems: ["EMR systems", "Lab information systems", "Billing"], opportunities: ["Telemedicine", "AI diagnostics", "Patient portals"], maturity: ["Basic: 35%", "Intermediate: 40%", "Advanced: 25%"] },
+        risks: [{ type: "Regulatory", level: "high", desc: "License requirements, compliance" }, { type: "Liability", level: "high", desc: "Malpractice, patient safety" }, { type: "Talent", level: "high", desc: "Physician shortages" }],
+        growth: { strategies: ["Specialization", "Chain expansion", "Medical tourism", "Telemedicine"], opportunities: ["Wellness services", "Home healthcare", "Diagnostics chains"], exports: ["Medical tourism", "Telemedicine to region"], programs: ["Healthcare investment incentives", "PPP opportunities"] },
+        mena: { egypt: ["Large population base", "Medical tourism potential", "Private sector growth"], saudi: ["Vision 2030 privatization", "Mega hospital projects", "Insurance expansion"], uae: ["Medical tourism hub", "Premium positioning", "Health cities"], jordan: ["Regional medical hub", "Skilled workforce", "Competitive pricing"] }
+    },
+    arts: {
+        icon: "🎨", name: "Arts & Handicrafts", sub: "Traditional Crafts, Artisanal Products, Handmade Goods", type: "services",
+        overview: { identity: ["ISIC Code: 32 - Other Manufacturing / Creative", "Value Chain: Artisan Producer", "Lifecycle: Revival & growth", "Business Models: Workshop, Cooperative, E-commerce"], market: ["Global handicrafts: $700B+", "Growing demand for authentic", "Export potential significant", "Tourism-linked sales"] },
+        benchmarks: [{ metric: "Gross Margin", range: "40-60%", top: "70%+" }, { metric: "Export Share", range: "10-30%", top: "50%+" }, { metric: "Online Sales", range: "5-15%", top: "30%+" }],
+        kpis: [{ name: "Production Time", value: "Varies", unit: "Per piece" }, { name: "Quality Rate", value: "90-95%", unit: "First quality" }, { name: "Repeat Customers", value: "30-50%", unit: "Of sales" }],
+        regulatory: { licenses: ["Craft workshop license", "Trade license", "Export license"], certifications: ["Fair Trade", "Handmade certification", "Origin certification", "UNESCO heritage (for traditional)"], compliance: ["Product safety", "Material standards", "Labeling"], export: ["Certificate of origin", "Handmade certification", "Cultural heritage docs"] },
+        workforce: { roles: ["Master craftspeople", "Apprentices", "Designers", "Sales staff"], wages: ["Apprentice: $150-300/mo", "Craftsperson: $300-800/mo", "Master: $800-2,000/mo"], training: ["Traditional techniques", "Quality standards", "Business skills"], productivity: ["Highly variable by craft type"] },
+        supply: { inputs: ["Raw materials (wood, textiles, metals, clay)", "Tools", "Packaging"], sourcing: ["Local materials preferred", "Authenticity important"], logistics: ["Fragile goods handling", "Export packaging"], risks: ["Material scarcity", "Quality consistency", "Skill preservation"] },
+        tech: { adoption: ["E-commerce: 15-25%", "Social media: 40-60%"], systems: ["E-commerce platforms", "Social selling", "Basic inventory"], opportunities: ["Online marketplaces", "Virtual showrooms", "Story-telling marketing"], maturity: ["Traditional: 60%", "Digital-enabled: 30%", "Digital-first: 10%"] },
+        risks: [{ type: "Market", level: "medium", desc: "Competition from machine-made" }, { type: "Skill", level: "high", desc: "Dying crafts, succession" }, { type: "Authenticity", level: "medium", desc: "Counterfeits, dilution" }],
+        growth: { strategies: ["E-commerce expansion", "Tourism partnerships", "Export development", "Design innovation"], opportunities: ["Luxury positioning", "Interior design market", "Corporate gifting", "Cultural tourism"], exports: ["Europe (premium)", "GCC (gifts)", "US (home decor)"], programs: ["Craft preservation grants", "Export support", "Women entrepreneurship"] },
+        mena: { egypt: ["Rich heritage (Khan el-Khalili)", "Textiles, pottery, metalwork", "Tourism-linked", "Women artisans"], saudi: ["Heritage revival", "Vision 2030 culture focus", "Traditional crafts support"], uae: ["Design hub", "Premium positioning", "Cultural tourism"], jordan: ["Mosaic, embroidery", "Petra-linked tourism", "Refugee artisan programs"] }
+    },
+    design: {
+        icon: "✏️", name: "Design & Creative", sub: "Graphic Design, Interior Design, Fashion, UX/UI, Branding", type: "services",
+        overview: { identity: ["ISIC Code: 74 - Specialized Design Activities", "Value Chain: Creative Service Provider", "Lifecycle: High growth", "Business Models: Agency, Freelance, In-house, Studio"], market: ["Global design services: $250B+", "MENA creative economy growing", "Digital demand surge", "Branding investment increasing"] },
+        benchmarks: [{ metric: "Gross Margin", range: "50-70%", top: "80%+" }, { metric: "Utilization Rate", range: "60-75%", top: "85%+" }, { metric: "Client Retention", range: "40-60%", top: "75%+" }],
+        kpis: [{ name: "Billable Hours", value: "65-75%", unit: "Of capacity" }, { name: "Project Margin", value: "40-50%", unit: "After costs" }, { name: "Client NPS", value: "40-60", unit: "Score" }],
+        regulatory: { licenses: ["Business license", "Professional registration"], certifications: ["Industry-specific (interior design)", "Software certifications"], compliance: ["IP protection", "Contract standards"], export: ["Remote services enabled", "Cross-border contracts"] },
+        workforce: { roles: ["Creative directors", "Designers", "UX/UI specialists", "Project managers"], wages: ["Junior: $500-1,000/mo", "Senior: $1,500-3,500/mo", "Director: $4,000-10,000/mo"], training: ["Software skills", "Design trends", "Client management"], productivity: ["Revenue/designer: $40K-100K"] },
+        supply: { inputs: ["Software subscriptions", "Hardware", "Stock assets"], sourcing: ["Global software", "Cloud-based"], logistics: ["Digital delivery", "File management"], risks: ["Software costs", "Talent competition"] },
+        tech: { adoption: ["Cloud tools: 80%+", "Collaboration: 70%+"], systems: ["Adobe CC", "Figma", "Project management"], opportunities: ["AI design tools", "AR/VR design", "Automation"], maturity: ["Traditional: 20%", "Digital: 60%", "AI-augmented: 20%"] },
+        risks: [{ type: "Talent", level: "high", desc: "Competition, turnover" }, { type: "Pricing", level: "medium", desc: "Race to bottom, scope creep" }, { type: "IP", level: "medium", desc: "Copyright, plagiarism" }],
+        growth: { strategies: ["Specialization", "Productization", "Regional expansion", "Retainer models"], opportunities: ["E-commerce design", "App design", "Brand strategy"], exports: ["Remote services globally", "GCC market", "Africa emerging"], programs: ["Creative economy support", "Startup grants"] },
+        mena: { egypt: ["Growing talent pool", "Cost competitive", "Outsourcing hub potential"], saudi: ["Entertainment push", "Mega-project branding", "Vision 2030"], uae: ["Dubai Design District", "Premium agencies", "Regional hub"], jordan: ["Tech talent", "Gaming/animation", "Cost effective"] }
+    },
+    construction: {
+        icon: "🏗️", name: "Construction & Contracting", sub: "General Contracting, Specialty Trades, MEP", type: "services",
+        overview: { identity: ["ISIC Code: 41-43 - Construction", "Value Chain: Contractor", "Lifecycle: Cyclical, currently strong in MENA", "Business Models: General contractor, Specialty, Developer"], market: ["MENA construction: $350B+ market", "Saudi: Largest market (mega-projects)", "Egypt: Infrastructure push", "UAE: Continued development"] },
+        benchmarks: [{ metric: "Gross Margin", range: "10-18%", top: "22%+" }, { metric: "Net Margin", range: "3-8%", top: "10%+" }, { metric: "Backlog Ratio", range: "1-2x", top: "3x+" }, { metric: "Working Capital Days", range: "60-120", top: "<60" }],
+        kpis: [{ name: "On-Time Delivery", value: "70-85%", unit: "Projects on schedule" }, { name: "Safety Rate", value: "<3", unit: "LTIR" }, { name: "Rework", value: "3-8%", unit: "Of project value" }],
+        regulatory: { licenses: ["Contractor license (by grade)", "Specialty licenses", "Safety certifications"], certifications: ["ISO 9001", "ISO 45001", "ISO 14001", "LEED AP", "PMP"], compliance: ["Building codes", "Safety regulations", "Environmental permits", "Labor laws"], export: ["Cross-border projects", "Regional expansion"] },
+        workforce: { roles: ["Project managers", "Engineers", "Foremen", "Skilled trades", "Laborers"], wages: ["Laborer: $200-400/mo", "Foreman: $600-1,200/mo", "PM: $2,000-5,000/mo", "Director: $5,000-15,000/mo"], training: ["Safety training", "Technical certifications", "Project management"], productivity: ["Revenue/employee: $50K-150K"] },
+        supply: { inputs: ["Materials (50-60% of cost)", "Equipment", "Subcontractors"], sourcing: ["Local materials preferred", "Imported specialty items"], logistics: ["Site delivery", "Just-in-time materials"], risks: ["Material price volatility", "Supply chain delays", "Subcontractor performance"] },
+        tech: { adoption: ["BIM: 20-35%", "Project management software: 50-60%"], systems: ["ERP", "Project management", "BIM", "Estimating"], opportunities: ["BIM adoption", "Drones", "IoT monitoring", "Prefabrication"], maturity: ["Traditional: 50%", "Digital: 35%", "Advanced: 15%"] },
+        risks: [{ type: "Project", level: "high", desc: "Delays, cost overruns" }, { type: "Payment", level: "high", desc: "Delayed payments, disputes" }, { type: "Safety", level: "high", desc: "Accidents, compliance" }, { type: "Market", level: "medium", desc: "Cyclical demand" }],
+        growth: { strategies: ["Specialization", "Design-build", "Regional expansion", "Vertical integration"], opportunities: ["Mega-projects", "Infrastructure", "Green building", "Modular construction"], exports: ["Regional projects", "Africa expansion"], programs: ["Infrastructure funds", "PPP opportunities", "Local content requirements"] },
+        mena: { egypt: ["New capital projects", "Infrastructure investment", "Housing programs"], saudi: ["NEOM, Red Sea, Qiddiya", "Vision 2030 mega-projects", "Saudization pressure"], uae: ["Expo legacy", "Continued development", "Sustainability focus"], jordan: ["Steady market", "Regional projects", "Refugee housing"] }
+    }
+};
+
+// Add placeholder for other sectors
+const placeholderSectors = ['pharma', 'textile', 'automotive', 'cosmetics', 'packaging', 'plastics', 'electronics', 'chemicals', 'furniture', 'filling', 'custom-industrial', 'professional', 'education', 'logistics', 'it', 'financial', 'retail', 'maintenance', 'music', 'media', 'custom-services'];
+placeholderSectors.forEach(s => {
+    if (!sectorsData[s]) {
+        const names = {
+            'pharma': ['💊', 'Pharmaceuticals', 'Generics, APIs, Manufacturing'],
+            'textile': ['🧵', 'Textiles', 'Apparel, Home Textiles'],
+            'automotive': ['🚗', 'Automotive Parts', 'OEM, Tier suppliers'],
+            'cosmetics': ['💄', 'Cosmetics', 'Personal care, Beauty'],
+            'packaging': ['📦', 'Packaging', 'Food & Industrial packaging'],
+            'plastics': ['🧪', 'Plastics', 'Injection, Extrusion'],
+            'electronics': ['⚡', 'Electronics', 'Assembly, Components'],
+            'chemicals': ['⚗️', 'Chemicals', 'Industrial, Specialty'],
+            'furniture': ['🪑', 'Furniture', 'Home, Office, Contract'],
+            'filling': ['🏭', 'Filling & Bottling', 'Beverages, Contract'],
+            'custom-industrial': ['✨', 'Your Industry', 'Custom configuration'],
+            'professional': ['💼', 'Professional Services', 'Consulting, Legal, Accounting'],
+            'education': ['🎓', 'Education & Training', 'Schools, Academies, E-learning'],
+            'logistics': ['🚚', 'Logistics & Distribution', 'Freight, Warehousing, Courier'],
+            'it': ['💻', 'IT & Digital Services', 'Software, Web, Digital Marketing'],
+            'financial': ['🏦', 'Financial Services', 'Microfinance, Insurance, Fintech'],
+            'retail': ['🛒', 'Retail & Trade', 'Shops, Wholesale, E-commerce'],
+            'maintenance': ['🔧', 'Maintenance & Technical', 'HVAC, Electrical, Facility Management'],
+            'music': ['🎵', 'Music & Entertainment', 'Studios, Events, Performers'],
+            'media': ['🎬', 'Media & Content', 'Film, Video, Content Creation'],
+            'custom-services': ['✨', 'Your Service', 'Custom configuration']
+        };
+        const info = names[s] || ['✨', s, 'Custom'];
+        sectorsData[s] = {
+            icon: info[0], name: info[1], sub: info[2], type: s.includes('service') || ['professional','education','logistics','it','financial','retail','maintenance','music','media'].includes(s) ? 'services' : 'industrial',
+            overview: { identity: ["Full sector data coming soon"], market: ["Click Food, Hospitality, Healthcare, Arts, Design, or Construction for complete examples"] },
+            benchmarks: [{ metric: "Coming Soon", range: "-", top: "-" }],
+            kpis: [{ name: "TBD", value: "-", unit: "Data in development" }],
+            regulatory: { licenses: ["Sector-specific"], certifications: ["Relevant certs"], compliance: ["Requirements"], export: ["Documentation"] },
+            workforce: { roles: ["Key roles"], wages: ["Benchmarks"], training: ["Needs"], productivity: ["Metrics"] },
+            supply: { inputs: ["Key inputs"], sourcing: ["Patterns"], logistics: ["Needs"], risks: ["Risks"] },
+            tech: { adoption: ["Levels"], systems: ["Systems"], opportunities: ["Opportunities"], maturity: ["Distribution"] },
+            risks: [{ type: "Various", level: "medium", desc: "Data in development" }],
+            growth: { strategies: ["Strategies"], opportunities: ["Opportunities"], exports: ["Markets"], programs: ["Programs"] },
+            mena: { egypt: ["Context"], saudi: ["Context"], uae: ["Context"], jordan: ["Context"] }
+        };
+    }
+});
+
+// ============ EYE/LENS DATA ============
+const eyeData = {
+    export: { icon: "🌍", name: "Export Readiness", desire: '"I want to sell internationally"', focus: ["International certification requirements", "Logistics and supply chain for export", "Target market compliance", "Documentation and traceability"], agents: [{ name: "Ricardo", level: "high" }, { name: "Landor", level: "high" }, { name: "Ohno", level: "high" }, { name: "Graham", level: "medium" }] },
+    investment: { icon: "💰", name: "Investment Attraction", desire: '"I want to raise capital"', focus: ["Financial statements and projections", "Corporate governance structure", "Valuation and deal readiness", "Growth story and market opportunity"], agents: [{ name: "Graham", level: "high" }, { name: "Marvin", level: "high" }, { name: "Porter", level: "medium" }] },
+    succession: { icon: "👤", name: "Owner Succession", desire: '"I want to retire / step back"', focus: ["Key person dependencies", "Process documentation", "Successor identification", "Operational independence"], agents: [{ name: "Mayo", level: "high" }, { name: "Marvin", level: "high" }, { name: "Graham", level: "medium" }] },
+    inheritance: { icon: "🏛️", name: "Inheritance Preparation", desire: '"I want to pass this to my children"', focus: ["Legal structure and ownership", "Family governance frameworks", "Next-generation readiness", "Succession planning"], agents: [{ name: "Graham", level: "high" }, { name: "Mayo", level: "high" }, { name: "Marvin", level: "medium" }] },
+    sale: { icon: "💼", name: "Sale / Exit", desire: '"I want to sell the company"', focus: ["Valuation optimization", "Due diligence readiness", "Clean financial records", "Operational independence"], agents: [{ name: "Graham", level: "high" }, { name: "Marvin", level: "high" }, { name: "Deming", level: "high" }] },
+    partnership: { icon: "🤝", name: "Partnership / JV", desire: '"I want to find a partner"', focus: ["Governance readiness", "Complementary strengths", "Due diligence preparation", "Partnership structure"], agents: [{ name: "Marvin", level: "high" }, { name: "Graham", level: "high" }, { name: "Porter", level: "medium" }] },
+    profit: { icon: "📈", name: "Profitability", desire: '"I want better margins"', focus: ["Cost structure analysis", "Operational efficiency", "Pricing strategy", "Revenue enhancement"], agents: [{ name: "Graham", level: "high" }, { name: "Ohno", level: "high" }, { name: "Porter", level: "medium" }] },
+    operational: { icon: "🏭", name: "Operational Excellence", desire: '"I want to run better"', focus: ["Process optimization", "Quality management", "Lean implementation", "Continuous improvement"], agents: [{ name: "Ohno", level: "high" }, { name: "Deming", level: "high" }, { name: "Marvin", level: "medium" }] },
+    digital: { icon: "💻", name: "Digital Transformation", desire: '"I want to modernize"', focus: ["Technology stack assessment", "Automation opportunities", "Digital presence", "Data capabilities"], agents: [{ name: "Lovelace", level: "high" }, { name: "Marvin", level: "high" }, { name: "Ohno", level: "medium" }] },
+    sustainability: { icon: "🌱", name: "Sustainability / ESG", desire: '"I want to be green"', focus: ["Environmental compliance", "Social responsibility", "Governance frameworks", "ESG reporting"], agents: [{ name: "Marvin", level: "high" }, { name: "Ohno", level: "high" }, { name: "Deming", level: "medium" }] },
+    employment: { icon: "👥", name: "Employment Growth", desire: '"I want to create jobs"', focus: ["HR capacity building", "Workforce scaling", "Training and development", "Organizational growth"], agents: [{ name: "Mayo", level: "high" }, { name: "Marvin", level: "high" }, { name: "Graham", level: "medium" }] },
+    supplychain: { icon: "🔗", name: "Supply Chain Integration", desire: '"I want to join a value chain"', focus: ["Supplier qualification", "Quality systems for OEM", "Logistics capabilities", "Traceability"], agents: [{ name: "Ohno", level: "high" }, { name: "Ricardo", level: "high" }, { name: "Landor", level: "medium" }] },
+    local: { icon: "🏘️", name: "Local Development", desire: '"I want community impact"', focus: ["Local sourcing", "Job creation", "Economic impact", "Community engagement"], agents: [{ name: "Mayo", level: "high" }, { name: "Ohno", level: "high" }, { name: "Marvin", level: "medium" }] },
+    crema: { icon: "☕", name: "The Crema", desire: '"I want quick wins now"', focus: ["Low-effort, high-impact interventions", "30-60-90 day implementable actions", "Visible results for stakeholders", "Momentum builders before deeper transformation", "Cost optimization quick hits", "Compliance gaps easy to close"], agents: [{ name: "Ohno", level: "high" }, { name: "Graham", level: "high" }, { name: "Marvin", level: "medium" }, { name: "Deming", level: "medium" }] },
+    custom: { icon: "✨", name: "Custom Objective", desire: '"I have a specific goal"', focus: ["User-defined focus areas", "Custom priority weighting", "Flexible agent configuration"], agents: [{ name: "Drucker", level: "high" }, { name: "Marvin", level: "medium" }] }
+};
+
+// ============ FUNCTIONS ============
+function toggleSectorType(type) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.type-btn.${type}`).classList.add('active');
+    document.querySelectorAll('.sector-group').forEach(g => g.classList.remove('active'));
+    document.getElementById(`${type}-sectors`).classList.add('active');
+    document.getElementById('sector-detail').classList.remove('active');
+}
+
+function selectAgent(el) {
+    document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const d = agentsData[el.dataset.agent];
+    document.getElementById('agent-detail-icon').textContent = d.icon;
+    document.getElementById('agent-detail-name').textContent = d.name;
+    document.getElementById('agent-detail-bio').textContent = d.bio;
+    document.getElementById('agent-detail-function').innerHTML = d.function.map(f => `<li>${f}</li>`).join('');
+    document.getElementById('agent-detail-capabilities').innerHTML = d.capabilities.map(c => `<li>${c}</li>`).join('');
+    document.getElementById('agent-detail').classList.add('active');
+}
+
+function selectSector(el) {
+    document.querySelectorAll('.sector-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const d = sectorsData[el.dataset.sector];
+    const isServices = d.type === 'services';
+    
+    document.getElementById('sector-detail-icon').textContent = d.icon;
+    document.getElementById('sector-detail-icon').className = `detail-icon ${isServices ? 'services' : 'sector'}`;
+    document.getElementById('sector-detail-name').textContent = d.name;
+    document.getElementById('sector-detail-sub').textContent = d.sub;
+    
+    const cardClass = isServices ? 'services' : '';
+    
+    document.getElementById('overview-content').innerHTML = `
+        <div class="knowledge-card ${cardClass}"><h4>📋 Identity</h4><ul>${d.overview.identity.map(i => `<li>${i}</li>`).join('')}</ul></div>
+        <div class="knowledge-card ${cardClass}"><h4>📊 Market</h4><ul>${d.overview.market.map(m => `<li>${m}</li>`).join('')}</ul></div>
+    `;
+    
+    document.getElementById('benchmarks-table').innerHTML = `<thead><tr><th>Metric</th><th>Typical</th><th>Top</th></tr></thead><tbody>${d.benchmarks.map(b => `<tr><td>${b.metric}</td><td class="benchmark-value">${b.range}</td><td class="benchmark-value">${b.top}</td></tr>`).join('')}</tbody>`;
+    document.getElementById('kpis-grid').innerHTML = d.kpis.map(k => `<div class="kpi-card"><div class="kpi-name">${k.name}</div><div class="kpi-value">${k.value}</div><div class="kpi-unit">${k.unit}</div></div>`).join('');
+    document.getElementById('regulatory-content').innerHTML = `<div class="knowledge-card ${cardClass}"><h4>📜 Licenses</h4><ul>${d.regulatory.licenses.map(l => `<li>${l}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>✓ Certifications</h4><ul>${d.regulatory.certifications.map(c => `<li>${c}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>⚖️ Compliance</h4><ul>${d.regulatory.compliance.map(c => `<li>${c}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🌍 Export</h4><ul>${d.regulatory.export.map(e => `<li>${e}</li>`).join('')}</ul></div>`;
+    document.getElementById('workforce-content').innerHTML = `<div class="knowledge-card ${cardClass}"><h4>👥 Roles</h4><ul>${d.workforce.roles.map(r => `<li>${r}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>💰 Wages</h4><ul>${d.workforce.wages.map(w => `<li>${w}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>📚 Training</h4><ul>${d.workforce.training.map(t => `<li>${t}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>📈 Productivity</h4><ul>${d.workforce.productivity.map(p => `<li>${p}</li>`).join('')}</ul></div>`;
+    document.getElementById('supply-content').innerHTML = `<div class="knowledge-card ${cardClass}"><h4>📦 Inputs</h4><ul>${d.supply.inputs.map(i => `<li>${i}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🔍 Sourcing</h4><ul>${d.supply.sourcing.map(s => `<li>${s}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🚚 Logistics</h4><ul>${d.supply.logistics.map(l => `<li>${l}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>⚠️ Risks</h4><ul>${d.supply.risks.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+    document.getElementById('tech-content').innerHTML = `<div class="knowledge-card ${cardClass}"><h4>📊 Adoption</h4><ul>${d.tech.adoption.map(a => `<li>${a}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>💻 Systems</h4><ul>${d.tech.systems.map(s => `<li>${s}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🚀 Opportunities</h4><ul>${d.tech.opportunities.map(o => `<li>${o}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>📈 Maturity</h4><ul>${d.tech.maturity.map(m => `<li>${m}</li>`).join('')}</ul></div>`;
+    document.getElementById('risks-grid').innerHTML = d.risks.map(r => `<div class="risk-item"><span class="risk-level ${r.level}">${r.level}</span><div><strong>${r.type}</strong><div class="risk-text">${r.desc}</div></div></div>`).join('');
+    document.getElementById('growth-content').innerHTML = `<div class="knowledge-card ${cardClass}"><h4>📈 Strategies</h4><ul>${d.growth.strategies.map(s => `<li>${s}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>💡 Opportunities</h4><ul>${d.growth.opportunities.map(o => `<li>${o}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🌍 Exports</h4><ul>${d.growth.exports.map(e => `<li>${e}</li>`).join('')}</ul></div><div class="knowledge-card ${cardClass}"><h4>🏛️ Programs</h4><ul>${d.growth.programs.map(p => `<li>${p}</li>`).join('')}</ul></div>`;
+    document.getElementById('mena-grid').innerHTML = `<div class="mena-country"><h5>🇪🇬 Egypt</h5><ul>${d.mena.egypt.map(e => `<li>${e}</li>`).join('')}</ul></div><div class="mena-country"><h5>🇸🇦 Saudi</h5><ul>${d.mena.saudi.map(s => `<li>${s}</li>`).join('')}</ul></div><div class="mena-country"><h5>🇦🇪 UAE</h5><ul>${d.mena.uae.map(u => `<li>${u}</li>`).join('')}</ul></div><div class="mena-country"><h5>🇯🇴 Jordan</h5><ul>${d.mena.jordan.map(j => `<li>${j}</li>`).join('')}</ul></div>`;
+    
+    // Reset tabs
+    document.querySelectorAll('.detail-tab').forEach(t => { t.classList.remove('active'); if(isServices) t.classList.add('services-tab'); else t.classList.remove('services-tab'); });
+    document.querySelector('.detail-tab[data-tab="overview"]').classList.add('active');
+    document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-overview').classList.add('active');
+    
+    document.getElementById('sector-detail').classList.add('active');
+}
+
+function selectSectorTab(el) {
+    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + el.dataset.tab).classList.add('active');
+}
+
+function selectEye(el) {
+    document.querySelectorAll('.eye-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const d = eyeData[el.dataset.eye];
+    document.getElementById('eye-detail-icon').textContent = d.icon;
+    document.getElementById('eye-detail-name').textContent = d.name;
+    document.getElementById('eye-detail-desire').textContent = d.desire;
+    document.getElementById('eye-detail-focus').innerHTML = d.focus.map(f => `<li>${f}</li>`).join('');
+    document.getElementById('eye-detail-agents').innerHTML = d.agents.map(a => `<div class="priority-agent ${a.level}"><span>${a.name}</span><div class="bar"><div class="bar-fill"></div></div></div>`).join('');
+    document.getElementById('eye-detail').classList.add('active');
+}
+
+function scrollToSection(id) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.nav-tab.${id}`).classList.add('active');
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+window.addEventListener('scroll', () => {
+    const sections = ['pantheon', 'sector', 'eye'];
+    let current = '';
+    sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section.getBoundingClientRect().top <= 150) current = id;
+    });
+    if (current) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.nav-tab.${current}`).classList.add('active');
+    }
+});
+</script>
+</body>
+</html>
